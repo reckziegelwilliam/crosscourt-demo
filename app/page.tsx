@@ -1,25 +1,8 @@
-import { getUsers } from '@/lib/db';
+
 import { UsersTable } from './users-table';
 import { Search } from './search';
-import { sql } from "@vercel/postgres";
+import prisma from '@/lib/prisma';
 
-async function Cart({
-  params
-} : {
-  params: { user: string }
-}): Promise<JSX.Element> {
-  const { rows } = await sql`SELECT * from CARTS where user_id=${params.user}`;
-
-  return (
-    <div>
-      {rows.map((row) => (
-        <div key={row.id}>
-          {row.id} - {row.quantity}
-        </div>
-      ))}
-    </div>
-  );
-}
 
 export default async function IndexPage({
   searchParams
@@ -28,7 +11,16 @@ export default async function IndexPage({
 }) {
   const search = searchParams.q ?? '';
   const offset = searchParams.offset ?? 0;
-  const { users, newOffset } = await getUsers(search, Number(offset));
+  const newOffset = parseInt(offset, 10);
+  const users = await prisma.user.findMany({
+    where: {
+      OR: [
+        { email: { contains: search } } as any,
+      ]
+    },
+    take: 10,
+    skip: newOffset
+  });
 
   return (
     <main className="flex flex-1 flex-col p-4 md:p-6">
@@ -39,9 +31,6 @@ export default async function IndexPage({
         <Search value={searchParams.q} />
       </div>
       <UsersTable users={users} offset={newOffset} />
-      <Cart 
-        params={{ user: '1' }}
-      />
     </main>
   );
 }
