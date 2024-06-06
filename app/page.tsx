@@ -1,6 +1,6 @@
 
-import { UsersTable } from './users-table';
-import { Search } from './search';
+import { UsersTable } from '../components/user/users-table';
+import { Search } from '../components/shared/search';
 import prisma from '@/lib/prisma';
 
 
@@ -30,7 +30,7 @@ export default async function IndexPage({
       <div className="w-full mb-4">
         <Search value={searchParams.q} />
       </div>
-      <UsersTable users={users} offset={newOffset} />
+      <UsersTable users={users as any} offset={newOffset} />
     </main>
   );
 }
