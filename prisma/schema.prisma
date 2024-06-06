@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model User {
+  id           Int         @id @default(autoincrement())
+  email        String      @unique
+  password     String
+  isAdmin      Boolean     @default(false)
+  tournaments  Tournament[] @relation("UserTournaments")
+  matches      Match[]     @relation("UserMatches", references: [player1Id, player2Id])
+  matchesWon   Match[]     @relation("MatchesWon", references: [winnerId])
+  matchesLost  Match[]     @relation("MatchesLost", references: [loserId])
+}
+
+model Tournament {
+  id            Int           @id @default(autoincrement())
+  name          String
+  startDate     DateTime
+  endDate       DateTime
+  participants  Participant[]
+  matches       Match[]
+  createdBy     User           @relation("UserTournaments", fields: [userId], references: [id])
+  userId        Int
+}
+
+model Participant {
+  id            Int           @id @default(autoincrement())
+  tournament    Tournament    @relation(fields: [tournamentId], references: [id])
+  tournamentId  Int
+  user          User          @relation(fields: [userId], references: [id])
+  userId        Int
+  seed          Int
+}
+
+model Match {
+  id            Int           @id @default(autoincrement())
+  tournament    Tournament    @relation(fields: [tournamentId], references: [id])
+  tournamentId  Int
+  round         Int
+  player1       User          @relation("Player1Matches", fields: [player1Id], references: [id])
+  player1Id     Int
+  player2       User          @relation("Player2Matches", fields: [player2Id], references: [id])
+  player2Id     Int
+  scorePlayer1  Int           @default(0)
+  scorePlayer2  Int           @default(0)
+  winner        User?         @relation("WinnerMatches", fields: [winnerId], references: [id])
+  winnerId      Int?
+  loser         User?         @relation("LoserMatches", fields: [loserId], references: [id])
+  loserId       Int?
+}

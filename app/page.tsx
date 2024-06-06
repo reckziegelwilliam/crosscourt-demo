@@ -1,6 +1,25 @@
 import { getUsers } from '@/lib/db';
 import { UsersTable } from './users-table';
 import { Search } from './search';
+import { sql } from "@vercel/postgres";
+
+async function Cart({
+  params
+} : {
+  params: { user: string }
+}): Promise<JSX.Element> {
+  const { rows } = await sql`SELECT * from CARTS where user_id=${params.user}`;
+
+  return (
+    <div>
+      {rows.map((row) => (
+        <div key={row.id}>
+          {row.id} - {row.quantity}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default async function IndexPage({
   searchParams
@@ -20,6 +39,9 @@ export default async function IndexPage({
         <Search value={searchParams.q} />
       </div>
       <UsersTable users={users} offset={newOffset} />
+      <Cart 
+        params={{ user: '1' }}
+      />
     </main>
   );
 }
