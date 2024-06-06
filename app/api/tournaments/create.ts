@@ -22,7 +22,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     res.status(201).json(tournament);
   } else {
-    res.status(405).json({ message:});
+    res.status(405).json({ message: 'Method not allowed'});
     }
 }
 
