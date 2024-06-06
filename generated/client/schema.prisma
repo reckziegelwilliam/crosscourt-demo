@@ -1,0 +1,76 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated/client"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model User {
+  id             Int            @id @default(autoincrement())
+  email          String         @unique
+  password       String
+  isAdmin        Boolean        @default(false)
+  tournaments    Tournament[]   @relation("UserTournaments")
+  participants   Participant[]
+  matchHistories MatchHistory[]
+}
+
+model Tournament {
+  id              Int             @id @default(autoincrement())
+  name            String
+  startDate       DateTime
+  endDate         DateTime
+  competitionType CompetitionType
+  scoreType       ScoreType
+  participants    Participant[]
+  matches         Match[]
+  createdBy       User            @relation("UserTournaments", fields: [userId], references: [id])
+  userId          Int
+}
+
+model Participant {
+  id             Int            @id @default(autoincrement())
+  tournament     Tournament     @relation(fields: [tournamentId], references: [id])
+  tournamentId   Int
+  user           User           @relation(fields: [userId], references: [id])
+  userId         Int
+  seed           Int
+  matchHistories MatchHistory[]
+}
+
+model Match {
+  id             Int            @id @default(autoincrement())
+  tournament     Tournament     @relation(fields: [tournamentId], references: [id])
+  tournamentId   Int
+  round          Int
+  matchHistories MatchHistory[]
+}
+
+model MatchHistory {
+  id            Int         @id @default(autoincrement())
+  match         Match       @relation(fields: [matchId], references: [id])
+  matchId       Int
+  participant   Participant @relation(fields: [participantId], references: [id])
+  participantId Int
+  user          User        @relation(fields: [userId], references: [id])
+  userId        Int
+  isWinner      Boolean
+  score         Int
+}
+
+enum CompetitionType {
+  SINGLE_ELIMINATION
+  DOUBLE_ELIMINATION
+  HYBRID
+  ROUND_ROBIN
+}
+
+enum ScoreType {
+  PRO_SET
+  REGULAR_SET
+  TIEBREAKER
+}
