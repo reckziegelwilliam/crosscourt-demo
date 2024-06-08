@@ -11,6 +11,9 @@ const nextConfig = {
         hostname: 'avatar.vercel.sh'
       }
     ]
+  },
+  experimental: {
+    serverComponentsExternalPackages: ['@prisma/client', 'bcrypt']
   }
 };
 

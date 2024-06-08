@@ -1,14 +1,8 @@
-import NextAuth from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
-import { compare } from 'bcrypt-ts';
-import { getUserByEmail } from '@/app/actions/userActions';
-import { authConfig } from '@/lib/auth.config';
-import { User } from '@prisma/client';
-import { CredentialsSignin } from "next-auth" 
+import NextAuth from "next-auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 
-class InvalidLoginError extends CredentialsSignin {
-  code = 'Invalid identifier or password'
-}
+import authConfig from "../auth.config";
+import prisma from "@/lib/db";
 
 export const {
   handlers: { GET, POST },
@@ -16,17 +10,7 @@ export const {
   signIn,
   signOut,
 } = NextAuth({
+  adapter: PrismaAdapter(prisma),
+  session: { strategy: "jwt" },
   ...authConfig,
-  providers: [
-    Credentials({
-      async authorize(credentials: any, request: any): Promise<any> {
-        const { email, password } = credentials;
-        let user: User | null = await getUserByEmail(email);
-        if (user === null) return null; // assuming it returns a User or null
-        const isValid = await compare(password, user.password);
-        if (!isValid) throw new InvalidLoginError();
-        return user;
-      }
-    }),
-  ],
 });

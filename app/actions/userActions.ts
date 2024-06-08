@@ -1,4 +1,6 @@
 import { PrismaClient, Prisma } from '@prisma/client';
+import { createError } from '@/lib/errors';
+
 
 const prisma = new PrismaClient();
 
@@ -21,37 +23,23 @@ export const createUser = async (email: string, password: string, isAdmin: boole
     });
     return newUser;
   } catch (error: any) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      throw {
-        message: `Error creating user: ${error.message}`,
-        statusCode: 400,
-      } as ActionError;
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        throw createError('network', `Error creating user: ${error.message}`, 400, );
+      }
+      throw createError('network', `Error creating user: ${error.message}`, 500, error.meta?.cause || 'Unknown error');
     }
-    throw {
-      message: `Error creating user: ${error.message}`,
-      statusCode: 500,
-    } as ActionError;
-  }
 };
 
 // Get a user by email
 export const getUserByEmail = async (email: string) => {
   try {
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
+    const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      throw {
-        message: `User not found with email: ${email}`,
-        statusCode: 404,
-      } as ActionError;
+      throw createError('validation', `User not found with email: ${email}`, 404, 'The user with the provided email does not exist.');
     }
     return user;
   } catch (error: any) {
-    throw {
-      message: `Error fetching user: ${error.message}`,
-      statusCode: 500,
-    } as ActionError;
+    throw createError('network', `Error fetching user: ${error.message}`, 500, error.meta?.cause || 'Unknown error');
   }
 };
 
