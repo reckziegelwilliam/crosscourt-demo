@@ -1,8 +1,8 @@
+// src/app/(protected)/settings/page.tsx
 "use client";
 
 import { useState, useTransition } from "react";
 import { useSession } from "next-auth/react";
-
 import * as z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,7 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { SettingsSchema } from "@/schemas";
 import { UserRole } from "@/app/generated/client";
-
+import { SettingsResult } from "@/types/results";
 import { settings } from "@/actions/settings";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -33,8 +33,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { FormError } from "@/components/form-error";
-import { FormSucess } from "@/components/form-success";
-import { User } from "@/app/generated/client"; // Assuming these types are defined
+import { FormSuccess } from "@/components/form-success"; // Assuming the component exists
 
 const SettingsPage = () => {
   const [error, setError] = useState<string | undefined>();
@@ -42,31 +41,31 @@ const SettingsPage = () => {
   const [isPending, startTransition] = useTransition();
   const { update } = useSession();
 
-  const user = useCurrentUser() as User & { role: UserRole; isTwoFactorEnabled: boolean; isOAuth: boolean; } | undefined
+  const user = useCurrentUser();
 
   const form = useForm<z.infer<typeof SettingsSchema>>({
     resolver: zodResolver(SettingsSchema),
     defaultValues: {
-      name: user?.name || undefined,
-      email: user?.email || undefined,
-      password: undefined,
-      newPassword: undefined,
-      role: user?.role || undefined,
-      isTwoFactorEnabled: user?.isTwoFactorEnabled || undefined,
+      name: user?.name || "",
+      email: user?.email || "",
+      password: "",
+      newPassword: "",
+      role: user?.role || UserRole.USER, // Default role as USER
+      isTwoFactorEnabled: user?.isTwoFactorEnabled || false,
     },
   });
 
   const onSubmit = (values: z.infer<typeof SettingsSchema>) => {
     startTransition(() => {
       settings(values)
-        .then((data) => {
-          if (data.error) {
+        .then((data: SettingsResult) => {
+          if ('error' in data) {
             setError(data.error);
-          }
-
-          if (data.success) {
-            update();
+            setSuccess(undefined); // Clear success message
+          } else if ('success' in data) {
+            update(); // Refresh the session
             setSuccess(data.success);
+            setError(undefined); // Clear error message
           }
         })
         .catch(() => setError("Something went wrong!"));
@@ -93,7 +92,6 @@ const SettingsPage = () => {
                         {...field}
                         placeholder="John Doe"
                         disabled={isPending}
-                        value={field.value as string}
                       />
                     </FormControl>
                     <FormMessage />
@@ -115,7 +113,6 @@ const SettingsPage = () => {
                             placeholder="john.doe@example.com"
                             type="email"
                             disabled={isPending}
-                            value={field.value as string}
                           />
                         </FormControl>
                         <FormMessage />
@@ -132,10 +129,9 @@ const SettingsPage = () => {
                         <FormControl>
                           <Input
                             {...field}
-                            placeholder="123456"
+                            placeholder="Current Password"
                             type="password"
                             disabled={isPending}
-                            value={field.value as string}
                           />
                         </FormControl>
                         <FormMessage />
@@ -152,10 +148,9 @@ const SettingsPage = () => {
                         <FormControl>
                           <Input
                             {...field}
-                            placeholder="123456"
+                            placeholder="New Password"
                             type="password"
                             disabled={isPending}
-                            value={field.value as string}
                           />
                         </FormControl>
                         <FormMessage />
@@ -173,7 +168,7 @@ const SettingsPage = () => {
                     <Select
                       disabled={isPending}
                       onValueChange={field.onChange}
-                      defaultValue={field.value as UserRole}
+                      value={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -199,13 +194,13 @@ const SettingsPage = () => {
                       <div className="space-y-0.5">
                         <FormLabel>Two Factor Authentication</FormLabel>
                         <FormDescription>
-                          Enable two factor authentication for your account
+                          Enable two-factor authentication for your account
                         </FormDescription>
                       </div>
                       <FormControl>
                         <Switch
                           disabled={isPending}
-                          checked={field.value as boolean}
+                          checked={field.value}
                           onCheckedChange={field.onChange}
                         />
                       </FormControl>
@@ -215,8 +210,8 @@ const SettingsPage = () => {
                 />
               )}
             </div>
-            <FormError message={error} />
-            <FormSucess message={success} />
+            {error && <FormError message={error} />}
+            {success && <FormSuccess message={success} />}
             <Button type="submit" disabled={isPending}>
               Save
             </Button>
