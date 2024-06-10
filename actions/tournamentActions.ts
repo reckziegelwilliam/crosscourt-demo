@@ -1,18 +1,20 @@
-import { PrismaClient } from '@prisma/client';
+"use server";
 
-import { CompetitionType, ScoreType } from '@prisma/client';
+import { db } from "@/lib/db";
+import { CompetitionType, ScoreType } from "@/app/generated/client";
+import { Tournament, ActionError } from "@/types/tournament"; // Import types
 
-export type ActionError = {
-  message: string;
-  statusCode?: number;
-};
-
-
-const prisma = new PrismaClient();
-
-export const createTournament = async (name: string, startDate: Date, endDate: Date, competitionType: CompetitionType, scoreType: ScoreType, userId: number) => {
+// Create a new tournament
+export const createTournament = async (
+  name: string,
+  startDate: Date,
+  endDate: Date,
+  competitionType: CompetitionType,
+  scoreType: ScoreType,
+  userId: string
+): Promise<Tournament> => {
   try {
-    const newTournament = await prisma.tournament.create({
+    const newTournament = await db.tournament.create({
       data: {
         name,
         startDate,
@@ -22,7 +24,7 @@ export const createTournament = async (name: string, startDate: Date, endDate: D
         userId,
       },
     });
-    return newTournament;
+    return newTournament as Tournament;
   } catch (error) {
     throw {
       message: `Error creating tournament: ${(error as Error).message}`,
@@ -32,12 +34,12 @@ export const createTournament = async (name: string, startDate: Date, endDate: D
 };
 
 // Get a tournament by ID
-export const getTournamentById = async (id: number) => {
+export const getTournamentById = async (id: string): Promise<Tournament | null> => {
   try {
-    const tournament = await prisma.tournament.findUnique({
+    const tournament = await db.tournament.findUnique({
       where: { id },
     });
-    return tournament;
+    return tournament as Tournament | null;
   } catch (error) {
     throw {
       message: `Error fetching tournament: ${(error as Error).message}`,
@@ -47,13 +49,13 @@ export const getTournamentById = async (id: number) => {
 };
 
 // Update a tournament's name
-export const updateTournamentName = async (id: number, newName: string) => {
+export const updateTournamentName = async (id: string, newName: string): Promise<Tournament> => {
   try {
-    const updatedTournament = await prisma.tournament.update({
+    const updatedTournament = await db.tournament.update({
       where: { id },
       data: { name: newName },
     });
-    return updatedTournament;
+    return updatedTournament as Tournament;
   } catch (error) {
     throw {
       message: `Error updating tournament name: ${(error as Error).message}`,
@@ -63,12 +65,12 @@ export const updateTournamentName = async (id: number, newName: string) => {
 };
 
 // Delete a tournament by ID
-export const deleteTournament = async (id: number) => {
+export const deleteTournament = async (id: string): Promise<Tournament> => {
   try {
-    const deletedTournament = await prisma.tournament.delete({
+    const deletedTournament = await db.tournament.delete({
       where: { id },
     });
-    return deletedTournament;
+    return deletedTournament as Tournament;
   } catch (error) {
     throw {
       message: `Error deleting tournament: ${(error as Error).message}`,
