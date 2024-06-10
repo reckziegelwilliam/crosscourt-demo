@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { RegisterSchema } from "schema/index";
+import { RegisterSchema } from "@/schemas";
 
 import {
   Form,
@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/card";
 
 import Link from "next/link";
-import { register } from "@/app/actions/register";
+import { register } from "@/actions/register";
 import { useTransition } from "react";
 
 export const RegisterForm = () => {
@@ -106,12 +106,12 @@ export const RegisterForm = () => {
                 <div className="bg-green-500 text-white px-4 py-2 rounded-md">
                   {success}
                 </div>
-              );
+              )
             }
             {
               error && (
                 <div className="bg-red-500  text-white px-4 py-2 rounded-md">{error}</div>
-              );
+              )
             }
             <Button
               disabled={isPending}

@@ -1,16 +1,13 @@
-import NextAuth from "next-auth";
-import { PrismaAdapter } from "@auth/prisma-adapter";
+import { auth } from "@/auth";
 
-import authConfig from "../auth.config";
-import prisma from "@/lib/db";
+export const currentUser = async () => {
+  const session = await auth();
 
-export const {
-  handlers: { GET, POST },
-  auth,
-  signIn,
-  signOut,
-} = NextAuth({
-  adapter: PrismaAdapter(prisma),
-  session: { strategy: "jwt" },
-  ...authConfig,
-});
+  return session?.user;
+};
+
+export const currentRole = async () => {
+  const session = await auth();
+
+  return session?.user?.role;
+};

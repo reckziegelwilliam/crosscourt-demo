@@ -1,36 +1,35 @@
-import './globals.css';
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import { SessionProvider } from "next-auth/react";
+import { auth } from "@/auth";
+import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 
-import {Providers} from '../context/Providers'
+const inter = Inter({ subsets: ["latin"] });
 
-import { Analytics } from '@vercel/analytics/react';
-import { Toaster } from "@/components/ui/toaster";
-import Navbar from '@/components/shared/nav/Navbar';
-import { LeftSidebar, RightSidebar } from '@/components/shared/nav/sidebars';
-
-export const metadata = {
-  title: 'Next.js App Router + NextAuth + Tailwind CSS',
-  description:
-    'A user admin dashboard configured with Next.js, Postgres, NextAuth, Tailwind CSS, TypeScript, and Prettier.'
+export const metadata: Metadata = {
+  title: "Next Auth | NextJS",
+  description: "Authentication using next-auth-v5",
+  icons: {
+    icon: "/icon.png",
+  },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const session = await auth();
 
-    <html lang="en" className="h-full bg-gray-50">
-      <body className="flex flex-col min-h-screen">
-        <Providers>
-          <Navbar />
-          <div className="flex flex-1">
-            <LeftSidebar />
-            <main className="flex-1">
-              {children}
-              <Toaster />
-            </main>
-            <RightSidebar />
-          </div>
-          <Analytics />
-        </Providers>
-      </body>
-    </html>
+  return (
+    <SessionProvider session={session}>
+      <html lang="en">
+        <body className={inter.className}>
+          <Toaster />
+          {children}
+        </body>
+      </html>
+    </SessionProvider>
   );
 }

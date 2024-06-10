@@ -126,10 +126,11 @@ exports.Prisma.UserScalarFieldEnum = {
   password: 'password',
   name: 'name',
   image: 'image',
-  isAdmin: 'isAdmin'
+  role: 'role'
 };
 
 exports.Prisma.AccountScalarFieldEnum = {
+  id: 'id',
   userId: 'userId',
   type: 'type',
   provider: 'provider',
@@ -140,9 +141,33 @@ exports.Prisma.AccountScalarFieldEnum = {
   token_type: 'token_type',
   scope: 'scope',
   id_token: 'id_token',
-  session_state: 'session_state',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  session_state: 'session_state'
+};
+
+exports.Prisma.VerificationTokenScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  token: 'token',
+  expires: 'expires'
+};
+
+exports.Prisma.PasswordResetTokenScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  token: 'token',
+  expires: 'expires'
+};
+
+exports.Prisma.TwoFactorTokenScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  token: 'token',
+  expires: 'expires'
+};
+
+exports.Prisma.TwoFactorConfirmationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId'
 };
 
 exports.Prisma.TournamentScalarFieldEnum = {
@@ -191,6 +216,11 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.UserRole = exports.$Enums.UserRole = {
+  ADMIN: 'ADMIN',
+  USER: 'USER'
+};
+
 exports.CompetitionType = exports.$Enums.CompetitionType = {
   SINGLE_ELIMINATION: 'SINGLE_ELIMINATION',
   DOUBLE_ELIMINATION: 'DOUBLE_ELIMINATION',
@@ -207,6 +237,10 @@ exports.ScoreType = exports.$Enums.ScoreType = {
 exports.Prisma.ModelName = {
   User: 'User',
   Account: 'Account',
+  VerificationToken: 'VerificationToken',
+  PasswordResetToken: 'PasswordResetToken',
+  TwoFactorToken: 'TwoFactorToken',
+  TwoFactorConfirmation: 'TwoFactorConfirmation',
   Tournament: 'Tournament',
   Participant: 'Participant',
   Match: 'Match',

@@ -9,22 +9,29 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
+enum UserRole {
+  ADMIN
+  USER
+}
+
 model User {
-  id             Int            @id @default(autoincrement())
-  email          String         @unique
-  emailVerified  DateTime?
-  password       String
-  name           String?
-  image          String?
-  accounts       Account[]
-  isAdmin        Boolean        @default(false)
-  tournaments    Tournament[]   @relation("UserTournaments")
-  participants   Participant[]  @relation("UserParticipants")
-  matchHistories MatchHistory[] @relation("UserMatchHistories")
+  id                     String                  @id @default(uuid())
+  email                  String                  @unique
+  emailVerified          DateTime?
+  password               String
+  name                   String?
+  image                  String?
+  accounts               Account[]
+  role                   UserRole                @default(USER)
+  tournaments            Tournament[]            @relation("UserTournaments")
+  participants           Participant[]           @relation("UserParticipants")
+  matchHistories         MatchHistory[]          @relation("UserMatchHistories")
+  twoFactorConfirmations TwoFactorConfirmation[]
 }
 
 model Account {
-  userId            Int
+  id                String  @id @default(uuid()) @map("_id")
+  userId            String // Changed to String to match User.id
   type              String
   provider          String
   providerAccountId String
@@ -35,15 +42,49 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@id([provider, providerAccountId])
+  @@unique([provider, providerAccountId])
+}
+
+model VerificationToken {
+  id      String   @id @default(uuid()) @map("_id")
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model PasswordResetToken {
+  id      String   @id @default(uuid()) @map("_id")
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model TwoFactorToken {
+  id      String   @id @default(uuid()) @map("_id")
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model TwoFactorConfirmation {
+  id     String @id @default(uuid()) @map("_id")
+  userId String // Changed to String to match User.id
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId])
 }
 
 model Tournament {
-  id              Int             @id @default(autoincrement())
+  id              String          @id @default(uuid())
   name            String
   startDate       DateTime
   endDate         DateTime
@@ -52,35 +93,35 @@ model Tournament {
   participants    Participant[]
   matches         Match[]
   createdBy       User            @relation("UserTournaments", fields: [userId], references: [id])
-  userId          Int
+  userId          String // Changed to String to match User.id
 }
 
 model Participant {
-  id             Int            @id @default(autoincrement())
+  id             String         @id @default(uuid())
   tournament     Tournament     @relation(fields: [tournamentId], references: [id])
-  tournamentId   Int
+  tournamentId   String // Changed to String to match Tournament.id
   user           User           @relation(fields: [userId], references: [id], name: "UserParticipants")
-  userId         Int
+  userId         String // Changed to String to match User.id
   seed           Int
   matchHistories MatchHistory[]
 }
 
 model Match {
-  id             Int            @id @default(autoincrement())
+  id             String         @id @default(uuid())
   tournament     Tournament     @relation(fields: [tournamentId], references: [id])
-  tournamentId   Int
+  tournamentId   String // Changed to String to match Tournament.id
   round          Int
   matchHistories MatchHistory[]
 }
 
 model MatchHistory {
-  id            Int         @id @default(autoincrement())
+  id            String      @id @default(uuid())
   match         Match       @relation(fields: [matchId], references: [id])
-  matchId       Int
+  matchId       String // Changed to String to match Match.id
   participant   Participant @relation(fields: [participantId], references: [id])
-  participantId Int
+  participantId String // Changed to String to match Participant.id
   user          User        @relation(fields: [userId], references: [id], name: "UserMatchHistories")
-  userId        Int
+  userId        String // Changed to String to match User.id
   isWinner      Boolean
   score         Int
 }

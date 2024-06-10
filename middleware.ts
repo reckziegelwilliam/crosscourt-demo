@@ -1,32 +1,51 @@
-import authConfig from "./auth.config";
 import NextAuth from "next-auth";
+import { NextResponse, NextRequest } from 'next/server';
+import authConfig from "@/auth.config";
+import {
+  DEFAULT_LOGIN_REDIRECT,
+  apiAuthPrefix,
+  authRoutes,
+  publicRoutes,
+} from "@/routes";
 
 const { auth } = NextAuth(authConfig);
 
-const authRoutes = ["/auth/login", "/auth/register"];
+interface NextAuthRequest extends NextRequest {
+  auth?: any;
+}
 
-export default auth((req) => {
+export default auth((req: NextAuthRequest): NextResponse | void => {
+  const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
-  const isAuthRoute = authRoutes.includes(req.nextUrl.pathname);
-  const isApiAuthRouter = req.nextUrl.pathname.startsWith("/api/auth");
 
-  if (isApiAuthRouter) {
-    return;
-  }
+  const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
+  const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
+  const isAuthRoute = authRoutes.includes(nextUrl.pathname);
+
+  if (isApiAuthRoute) return;
 
   if (isAuthRoute) {
     if (isLoggedIn) {
-      return Response.redirect(new URL("/dashboard", req.nextUrl));
+      return NextResponse.redirect(new URL(DEFAULT_LOGIN_REDIRECT, `${nextUrl.protocol}//${nextUrl.host}`));
     }
     return;
   }
-  if (!isLoggedIn && !isAuthRoute) {
-    return Response.redirect(new URL("/auth/login", req.nextUrl));
-  }
 
-  return;
+  if (!isLoggedIn && !isPublicRoute) {
+    let callbackUrl = nextUrl.pathname;
+    if (nextUrl.search) {
+      callbackUrl += nextUrl.search;
+    }
+
+    const encodedCallbackUrl = encodeURIComponent(callbackUrl);
+
+    return NextResponse.redirect(
+      new URL(`/auth/login?callbackUrl=${encodedCallbackUrl}`, `${nextUrl.protocol}//${nextUrl.host}`)
+    );
+  }
 });
 
+// Optionally, don't invoke Middleware on some paths
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
 };
