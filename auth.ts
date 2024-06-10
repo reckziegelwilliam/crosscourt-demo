@@ -1,5 +1,5 @@
 // src/auth.ts
-import NextAuth, { Account, Session } from "next-auth";
+import NextAuth, { User, Account, Session } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { UserRole } from "@/app/generated/client";
 
@@ -21,7 +21,7 @@ export const {
     error: "/auth/error",
   },
   events: {
-    async linkAccount({ user, account }: { user: ExtendedUser, account: Account }) {
+    async linkAccount({ user, account }: { user: User, account: Account }) {
       await db.user.update({
         where: { id: user.id as string }, // Ensure the id is cast to string
         data: { emailVerified: new Date() },
@@ -29,7 +29,7 @@ export const {
     },
   },
   callbacks: {
-    async signIn({ user, account }: { user: ExtendedUser, account: Account }) {
+    async signIn({ user, account }: { user: User, account: Account }) {
       // Allow OAuth without email verification
       if (account?.provider !== "credentials") return true;
 
