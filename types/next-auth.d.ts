@@ -3,10 +3,10 @@ import { DefaultSession, DefaultUser } from "next-auth";
 import { DefaultJWT } from "next-auth/jwt";
 
 export interface ExtendedUser extends DefaultUser {
-  id: string;
+  id: string; // Ensure id is always a string
   email: string;
-  emailVerified: Date | null; // Include emailVerified
-  password?: string; // Optional to reflect the real-world scenario
+  emailVerified: Date | null;
+  password?: string;
   role: UserRole;
   isTwoFactorEnabled: boolean;
   isOAuth: boolean;
