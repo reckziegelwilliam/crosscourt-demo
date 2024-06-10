@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { newVerification } from "@/actions/new-verification";
 import CardWrapper from "@/components/auth/card-wrapper";
 import { FormError } from "@/components/form-error";
-import { FormSucess } from "@/components/form-success";
+import { FormSuccess } from "@/components/form-success";
 
 const NewVerificationForm = () => {
   const [error, setError] = useState<string | undefined>();
@@ -46,7 +46,7 @@ const NewVerificationForm = () => {
     >
       <div className="flex items-center justify-center w-full">
         {!success && !error && <BeatLoader />}
-        <FormSucess message={success} />
+        <FormSuccess message={success} />
         {!success && <FormError message={error} />}
       </div>
     </CardWrapper>

@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import CardWrapper from "@/components/auth/card-wrapper";
 import { FormError } from "@/components/form-error";
-import { FormSucess } from "@/components/form-success";
+import { FormSuccess } from "@/components/form-success";
 
 import { newPassword } from "@/actions/new-password";
 
@@ -82,7 +82,7 @@ const NewPasswordForm = () => {
             />
           </div>
           <FormError message={error} />
-          <FormSucess message={success} />
+          <FormSuccess message={success} />
           <Button disabled={isPending} type="submit" className="w-full">
             Reset password
           </Button>
