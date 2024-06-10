@@ -126,7 +126,9 @@ exports.Prisma.UserScalarFieldEnum = {
   password: 'password',
   name: 'name',
   image: 'image',
-  role: 'role'
+  role: 'role',
+  isTwoFactorEnabled: 'isTwoFactorEnabled',
+  isOAuth: 'isOAuth'
 };
 
 exports.Prisma.AccountScalarFieldEnum = {

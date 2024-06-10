@@ -1,8 +1,10 @@
+// src/auth/credentials.ts
 import bcrypt from "bcryptjs";
 import type { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { LoginSchema } from "@/schemas";
 import { getUserByEmail } from "@/data/user";
+import { ExtendedUser } from "@/types/next-auth"; // Import the type
 
 export default {
   providers: [
@@ -23,7 +25,20 @@ export default {
 
           const passwordsMatch = await bcrypt.compare(password, user.password);
 
-          if (passwordsMatch) return user;
+          if (passwordsMatch) {
+            // Ensure to include all properties of ExtendedUser
+            return {
+              id: user.id,
+              email: user.email,
+              name: user.name || null,
+              emailVerified: user.emailVerified || null,
+              password: user.password,
+              role: user.role,
+              isTwoFactorEnabled: user.isTwoFactorEnabled,
+              isOAuth: user.isOAuth,
+              image: user.image || null, // Add other necessary properties
+            } as ExtendedUser; // Return ExtendedUser
+          }
         }
 
         return null;

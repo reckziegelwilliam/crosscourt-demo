@@ -23,6 +23,8 @@ model User {
   image                  String?
   accounts               Account[]
   role                   UserRole                @default(USER)
+  isTwoFactorEnabled     Boolean                 @default(false)
+  isOAuth                Boolean                 @default(false)
   tournaments            Tournament[]            @relation("UserTournaments")
   participants           Participant[]           @relation("UserParticipants")
   matchHistories         MatchHistory[]          @relation("UserMatchHistories")
