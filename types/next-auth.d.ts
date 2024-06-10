@@ -6,13 +6,13 @@ import { DefaultJWT } from "next-auth/jwt";
 export interface ExtendedUser extends DefaultUser {
   id: string;
   email: string;
-  name?: string;
   emailVerified: Date | null;
   password?: string;
+  name?: string;
+  image?: string;
   role: UserRole;
   isTwoFactorEnabled: boolean;
   isOAuth: boolean;
-  image?: string;
 }
 
 export interface ExtendedSession extends DefaultSession {
