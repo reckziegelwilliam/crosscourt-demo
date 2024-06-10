@@ -10,12 +10,8 @@ import { getUserByEmail, getUserById } from "@/data/user";
 import { currentUser } from "@/lib/auth";
 import { generateVerificationToken } from "@/lib/tokens";
 import { sendVerificationEmail } from "@/lib/mail";
-import { ExtendedUser } from "@/types/next-auth"; // Import unified types
-
-// Define the type for the return value of the settings function
-type SettingsResult = 
-  | { error: string }
-  | { success: string };
+import { ExtendedUser } from "@/types/next-auth";
+import { SettingsResult } from "@/types/results";
 
 // Define the settings function
 export const settings = async (

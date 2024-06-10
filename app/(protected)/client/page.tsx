@@ -1,18 +1,22 @@
-// src/app/(protected)/client/page.tsx
+// src/components/RoleGate.tsx
 "use client";
 
-import UserInfo from "@/components/user-info";
-import { useCurrentUser } from "@/hooks/use-current-user";
-import { isExtendedUser } from "@/types/type-guards";
+import { UserRole } from "@/app/generated/client";
+import { FormError } from "@/components/form-error";
+import { useCurrentRole } from "@/hooks/use-current-role";
 
-const ClientPage = () => {
-  const user = useCurrentUser();
+interface RoleGateProps {
+  children: React.ReactNode;
+  allowedRole: UserRole;
+}
 
-  if (!isExtendedUser(user)) {
-    return <div>Loading or error...</div>;
+export const RoleGate = ({ children, allowedRole }: RoleGateProps) => {
+  const role = useCurrentRole();
+
+  if (role !== allowedRole) {
+    return (
+      <FormError message="You do not have permission to view this content!" />
+    );
   }
-
-  return <UserInfo label="📱 Client Component" user={user} />;
+  return <>{children}</>;
 };
-
-export default ClientPage;
