@@ -1,3 +1,4 @@
+// src/actions/settings.ts
 "use server";
 
 import * as z from "zod";
@@ -9,15 +10,24 @@ import { getUserByEmail, getUserById } from "@/data/user";
 import { currentUser } from "@/lib/auth";
 import { generateVerificationToken } from "@/lib/tokens";
 import { sendVerificationEmail } from "@/lib/mail";
+import { ExtendedUser } from "@/types/next-auth"; // Import unified types
 
-export const settings = async (values: z.infer<typeof SettingsSchema>) => {
-  const user = await currentUser();
+// Define the type for the return value of the settings function
+type SettingsResult = 
+  | { error: string }
+  | { success: string };
 
-  if (!user) {
+// Define the settings function
+export const settings = async (
+  values: z.infer<typeof SettingsSchema>
+): Promise<SettingsResult> => {
+  const user = await currentUser() as ExtendedUser | null;
+
+  if (!user || !user.id) {
     return { error: "Unauthorized!" };
   }
 
-  const dbUser = await getUserById(user.id);
+  const dbUser = await getUserById(user.id) as ExtendedUser | null;
 
   if (!dbUser) {
     return { error: "Unauthorized!" };
@@ -31,7 +41,7 @@ export const settings = async (values: z.infer<typeof SettingsSchema>) => {
   }
 
   if (values.email && values.email !== user.email) {
-    const existingUser = await getUserByEmail(values.email);
+    const existingUser = await getUserByEmail(values.email) as ExtendedUser | null;
 
     if (existingUser && existingUser.id !== user.id) {
       return { error: "Email already in use!" };

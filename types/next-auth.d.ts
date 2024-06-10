@@ -4,6 +4,8 @@ import { DefaultJWT } from "next-auth/jwt";
 
 export interface ExtendedUser extends DefaultUser {
   id: string;
+  email: string;
+  password?: string; // Optional to reflect the real-world scenario
   role: UserRole;
   isTwoFactorEnabled: boolean;
   isOAuth: boolean;
