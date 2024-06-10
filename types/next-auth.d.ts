@@ -1,12 +1,14 @@
+// src/types/next-auth.d.ts
 import { UserRole } from "@prisma/client";
 import { DefaultSession, DefaultUser } from "next-auth";
 import { DefaultJWT } from "next-auth/jwt";
 
 export interface ExtendedUser extends DefaultUser {
-  id: string; // Ensure id is always a string
+  id: string;
   email: string;
+  name?: string; // Include optional name
   emailVerified: Date | null;
-  password?: string;
+  password?: string; // Optional to reflect the real-world scenario
   role: UserRole;
   isTwoFactorEnabled: boolean;
   isOAuth: boolean;
