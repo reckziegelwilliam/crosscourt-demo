@@ -1,12 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { prisma } from '@/lib/prisma'
+import { db } from '@/lib/db'
 
 // POST /api/tournament
 export default async function handle(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
-  const result = await prisma.tournament.create({
+  const result = await db.tournament.create({
     data: {
       ...req.body,
     },
