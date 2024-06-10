@@ -12,6 +12,7 @@ export interface ExtendedUser extends DefaultUser {
   role: UserRole;
   isTwoFactorEnabled: boolean;
   isOAuth: boolean;
+  image?: string;
 }
 
 export interface ExtendedSession extends DefaultSession {
