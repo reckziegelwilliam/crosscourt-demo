@@ -1,5 +1,5 @@
 // src/auth.ts
-import NextAuth, { type NextAuthOptions, User, Account, Session } from "next-auth";
+import NextAuth, { Account, Session } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { UserRole } from "@/app/generated/client";
 
@@ -92,4 +92,4 @@ export const {
   adapter: PrismaAdapter(db),
   session: { strategy: "jwt" },
   ...authConfig,
-} as NextAuthOptions);
+});
